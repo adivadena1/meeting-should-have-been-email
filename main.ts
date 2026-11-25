@@ -1,7 +1,7 @@
 // make.fun entry: The Meeting That Should Have Been an Email
 // Writes one joke, one line, to /output/entry.txt. Deterministic, no network.
 
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 
 const LINE = "The meeting's only decision was that the email should have been a meeting.";
 
@@ -18,3 +18,10 @@ if (LINE.trim().length === 0) {
 
 mkdirSync("/output", { recursive: true });
 writeFileSync("/output/entry.txt", LINE, "utf8");
+
+// Read back and verify: the file must hold exactly LINE, byte for byte.
+// A partial or truncated write must fail loudly instead of shipping a bad entry.
+const written = readFileSync("/output/entry.txt", "utf8");
+if (written !== LINE) {
+  throw new Error(`entry.txt mismatch: wrote ${LINE.length} chars, file holds ${written.length}`);
+}
